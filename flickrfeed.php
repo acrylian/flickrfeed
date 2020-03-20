@@ -3,8 +3,13 @@
 /**
  * A simple ZenphotoCMS plugin to display the latest public images from a Flickr account
  * 
- * Set the plugin option with your flickr user id
- * Add `flickrFeed::printFreed(4);` to your theme where you want to display it.
+ * It does use the public RSS feed and therefore only covers public content.
+ * 
+ * ## Installation
+ * 
+ * Place the file `flickrfeed.php` into your `/plugins` folder, enable it and set the plugin options.
+ * 
+ * Add `flickrFeed::printFreed(4);` to your theme where you want to display the latest images.
  * 
  * Note the plugin does just print an unordered list with linked thumbs and does not provide any default CSS styling. 
  * 
@@ -54,22 +59,24 @@ class flickrFeed {
 	 */
 	static function getFeed() {
 		require_once(SERVERPATH . '/' . ZENFOLDER . '/' . PLUGIN_FOLDER . '/zenphoto_news/rsslib.php');
-		$userid = getOption('flickrfeed_userid');
-		$feedurl = 'https://api.flickr.com/services/feeds/photos_public.gne?id='. sanitize($userid). '&format=rss2';
-		$cache = flickrFeed::getCache();
-		$lastmod =	flickrFeed::getLastMod();
-		$cachetime = getOption('flickrfeed_cachetime');
-		if (empty($cache) || (time() - $lastmod) > $cachetime) {
-			$content = RSS_Retrieve($feedurl);
-			flickrFeed::saveCache($content);
-			flickrFeed::saveLastMod();
-			return $content;
-		} else {
-			return $cache;
+		$userid = trim(getOption('flickrfeed_userid'));
+		if ($userid) {
+			$feedurl = 'https://api.flickr.com/services/feeds/photos_public.gne?id=' . sanitize($userid) . '&format=rss2';
+			$cache = flickrFeed::getCache();
+			$lastmod = flickrFeed::getLastMod();
+			$cachetime = getOption('flickrfeed_cachetime');
+			if (empty($cache) || (time() - $lastmod) > $cachetime) {
+				$content = RSS_Retrieve($feedurl);
+				flickrFeed::saveCache($content);
+				flickrFeed::saveLastMod();
+				return $content;
+			} else {
+				return $cache;
+			}
 		}
 		return array();
 	}
-	
+
 	/**
 	 * Prints a list of images from a users flickrFeed
 	 * 
