@@ -5,7 +5,7 @@ It does use the public RSS feed and therefore only covers public content.
 
 ## Installation
 
-Place the file `flickrfeed.php` into your `/plugins` folder, enable it and set the plugin options. 
+Place the file `flickrfeed.php` to your `/plugins` folder, enable it and set the plugin options. 
 
 Add `flickrFeed::printFeed(4);` to your theme where you want to display the latest images.
 
