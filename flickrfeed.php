@@ -9,7 +9,7 @@
  * 
  * Place the file `flickrfeed.php` into your `/plugins` folder, enable it and set the plugin options.
  * 
- * Add `flickrFeed::printFreed(4);` to your theme where you want to display the latest images.
+ * Add `flickrFeed::printFeed(4);` to your theme where you want to display the four latest images.
  * 
  * Note the plugin does just print an unordered list with linked thumbs and does not provide any default CSS styling. 
  * 
@@ -20,6 +20,7 @@ $plugin_description = gettext('A simple plugin to display the latest public imag
 $plugin_author = 'Malte Müller (acrylian)';
 $plugin_version = '1.0';
 $plugin_category = gettext('Media');
+$plugin_disable = (!class_exists('DOMDocument')) ? gettext('PHP <em>DOM Object Model</em> is required.') : false;
 $option_interface = 'flickrFeedOptions';
 
 class flickrFeedOptions {
@@ -60,7 +61,7 @@ class flickrFeed {
 	static function getFeed() {
 		require_once(SERVERPATH . '/' . ZENFOLDER . '/' . PLUGIN_FOLDER . '/zenphoto_news/rsslib.php');
 		$userid = trim(getOption('flickrfeed_userid'));
-		if ($userid) {
+		if ($userid && function_exists('RSS_Retrieve')) {
 			$feedurl = 'https://api.flickr.com/services/feeds/photos_public.gne?id=' . sanitize($userid) . '&format=rss2';
 			$cache = flickrFeed::getCache();
 			$lastmod = flickrFeed::getLastMod();
@@ -73,7 +74,7 @@ class flickrFeed {
 			} else {
 				return $cache;
 			}
-		}
+		} 
 		return array();
 	}
 
@@ -196,5 +197,6 @@ class flickrFeed {
 		}
 		query($sql);
 	}
+
 
 }
