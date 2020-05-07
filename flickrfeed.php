@@ -97,7 +97,8 @@ class flickrFeed {
 				<?php
 				foreach ($content as $item) {
 					//echo "<pre>"; print_r($item); echo "</pre>";
-					$thumb = flickrfeed::getItemLinkAndThumb($item);
+					$itemobj = new flickrFeedItem($item);
+					$thumb = $itemobj->getLinkAndThumb($item);
 					if ($thumb) {
 						$count++;
 						echo '<li>' .$thumb . '</li>';
@@ -110,37 +111,6 @@ class flickrFeed {
 						</ul>
 			<?php
 		}
-	}
-	
-	/**
-	 * Return <a><img></a> HTML of the image posted
-	 * 
-	 * @param array $item  The item array 
-	 */
-	static function getItemLinkAndThumb($item) {
-		$expl = explode('<p>', $item['description']);
-		if (array_key_exists(2, $expl)) {
-			return $expl[2];
-		}
-	}
-
-	/**
-	 * Returns the image description wrapped in a paragraph.
-	 * @param array $item  The item array 
-	 */
-	static function getItemDescription($item) {
-		$expl = explode('<p>', $item['description']);
-		if (array_key_exists(3, $expl)) {
-			return $expl[3];
-		}
-	}
-
-	/**
-	 * Returns the image description wrapped in a paragraph.
-	 * @param array $item  The item array 
-	 */
-	static function getItemDate($item) {
-		return zpFormattedDate(DATE_FORMAT, strtotime($item['pubDate']));
 	}
 	
 	/**
@@ -199,4 +169,55 @@ class flickrFeed {
 	}
 
 
+}
+
+/**
+ * Fetches data from a flickrfeed item
+ */
+class flickrFeedItem {
+	
+	public $item = null;
+	
+	/**
+	 * @param array $item The single item array as returnd by flickrFeed::getFeed();
+	 */
+	function __construct(Array $item) {
+		if($item) {
+			$this->item = $item;
+		}
+	}
+	
+	/**
+	 * Return <a><img></a> HTML of the image posted
+	 */
+	function getLinkAndThumb() {
+		if($this->item) {
+			$expl = explode('<p>', $this->item['description']);
+			if (array_key_exists(2, $expl)) {
+				return $expl[2];
+			}
+		}
+	}
+
+	/**
+	 * Returns the image description wrapped in a paragraph.
+	 */
+	function getDescription() {
+		if($this->item) {
+			$expl = explode('<p>', $this->item['description']);
+			if (array_key_exists(3, $expl)) {
+				return $expl[3];
+			}
+		}
+	}
+
+	/**
+	 * Returns the image description wrapped in a paragraph.
+	 */
+	function getDate() {
+		if($this->item) {
+			return zpFormattedDate(DATE_FORMAT, strtotime($this->item['pubDate']));
+		}
+	}
+	
 }
