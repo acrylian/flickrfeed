@@ -9,7 +9,7 @@
  * 
  * Place the file `flickrfeed.php` into your `/plugins` folder, enable it and set the plugin options.
  * 
- * Add `flickrFeed::printFeed(4);` to your theme where you want to display the four latest images.
+ * Add `flickrFeed::printFreed(4);` to your theme where you want to display the latest images.
  * 
  * Note the plugin does just print an unordered list with linked thumbs and does not provide any default CSS styling. 
  * 
@@ -18,9 +18,8 @@
  */
 $plugin_description = gettext('A simple plugin to display the latest public images from a Flickr account');
 $plugin_author = 'Malte Müller (acrylian)';
-$plugin_version = '1.0';
+$plugin_version = '1.0.1';
 $plugin_category = gettext('Media');
-$plugin_disable = (!class_exists('DOMDocument')) ? gettext('PHP <em>DOM Object Model</em> is required.') : false;
 $option_interface = 'flickrFeedOptions';
 
 class flickrFeedOptions {
@@ -42,8 +41,22 @@ class flickrFeedOptions {
 						'key' => 'flickrfeed_cachetime',
 						'type' => OPTION_TYPE_TEXTBOX,
 						'order' => 1,
-						'desc' => gettext('The time the cache is kept until the data is fetched freshly'))
+						'desc' => gettext('The time the cache is kept until the data is fetched freshly')),
+				gettext('Clear cache') => array(
+						'key' => 'flickrfeed_cacheclear',
+						'type' => OPTION_TYPE_CHECKBOX,
+						'order' => 1,
+						'desc' => gettext('Check and save options to clear the cache on force.'))
 		);
+	}
+	
+	function handleOptionSave($themename, $themealbum) {
+		if (isset($_POST['flickrfeed_cacheclear'])) {
+			flickrFeed::saveCache('');
+			flickrFeed::saveLastmod();
+			setOption('flickrfeed_cacheclear', false);
+		}
+		return false;
 	}
 
 }
@@ -61,7 +74,7 @@ class flickrFeed {
 	static function getFeed() {
 		require_once(SERVERPATH . '/' . ZENFOLDER . '/' . PLUGIN_FOLDER . '/zenphoto_news/rsslib.php');
 		$userid = trim(getOption('flickrfeed_userid'));
-		if ($userid && function_exists('RSS_Retrieve')) {
+		if ($userid) {
 			$feedurl = 'https://api.flickr.com/services/feeds/photos_public.gne?id=' . sanitize($userid) . '&format=rss2';
 			$cache = flickrFeed::getCache();
 			$lastmod = flickrFeed::getLastMod();
@@ -74,7 +87,7 @@ class flickrFeed {
 			} else {
 				return $cache;
 			}
-		} 
+		}
 		return array();
 	}
 
@@ -97,8 +110,7 @@ class flickrFeed {
 				<?php
 				foreach ($content as $item) {
 					//echo "<pre>"; print_r($item); echo "</pre>";
-					$itemobj = new flickrFeedItem($item);
-					$thumb = $itemobj->getLinkAndThumb($item);
+					$thumb = flickrfeed::getItemLinkAndThumb($item);
 					if ($thumb) {
 						$count++;
 						echo '<li>' .$thumb . '</li>';
@@ -111,6 +123,37 @@ class flickrFeed {
 						</ul>
 			<?php
 		}
+	}
+	
+	/**
+	 * Return <a><img></a> HTML of the image posted
+	 * 
+	 * @param array $item  The item array 
+	 */
+	static function getItemLinkAndThumb($item) {
+		$expl = explode('<p>', $item['description']);
+		if (array_key_exists(2, $expl)) {
+			return $expl[2];
+		}
+	}
+
+	/**
+	 * Returns the image description wrapped in a paragraph.
+	 * @param array $item  The item array 
+	 */
+	static function getItemDescription($item) {
+		$expl = explode('<p>', $item['description']);
+		if (array_key_exists(3, $expl)) {
+			return $expl[3];
+		}
+	}
+
+	/**
+	 * Returns the image description wrapped in a paragraph.
+	 * @param array $item  The item array 
+	 */
+	static function getItemDate($item) {
+		return zpFormattedDate(DATE_FORMAT, strtotime($item['pubDate']));
 	}
 	
 	/**
@@ -168,56 +211,4 @@ class flickrFeed {
 		query($sql);
 	}
 
-
-}
-
-/**
- * Fetches data from a flickrfeed item
- */
-class flickrFeedItem {
-	
-	public $item = null;
-	
-	/**
-	 * @param array $item The single item array as returnd by flickrFeed::getFeed();
-	 */
-	function __construct(Array $item) {
-		if($item) {
-			$this->item = $item;
-		}
-	}
-	
-	/**
-	 * Return <a><img></a> HTML of the image posted
-	 */
-	function getLinkAndThumb() {
-		if($this->item) {
-			$expl = explode('<p>', $this->item['description']);
-			if (array_key_exists(2, $expl)) {
-				return $expl[2];
-			}
-		}
-	}
-
-	/**
-	 * Returns the image description wrapped in a paragraph.
-	 */
-	function getDescription() {
-		if($this->item) {
-			$expl = explode('<p>', $this->item['description']);
-			if (array_key_exists(3, $expl)) {
-				return $expl[3];
-			}
-		}
-	}
-
-	/**
-	 * Returns the image description wrapped in a paragraph.
-	 */
-	function getDate() {
-		if($this->item) {
-			return zpFormattedDate(DATE_FORMAT, strtotime($this->item['pubDate']));
-		}
-	}
-	
 }
