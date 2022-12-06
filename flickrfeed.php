@@ -18,7 +18,7 @@
  */
 $plugin_description = gettext('A simple plugin to display the latest public images from a Flickr account');
 $plugin_author = 'Malte Müller (acrylian)';
-$plugin_version = '1.0.1';
+$plugin_version = '1.1';
 $plugin_category = gettext('Media');
 $option_interface = 'flickrFeedOptions';
 
@@ -161,54 +161,58 @@ class flickrFeed {
 	 * @return array
 	 */
 	static function getCache() {
-		$cache = query_single_row('SELECT data FROM ' . prefix('plugin_storage') . ' WHERE `type` = "flickrfeed" AND `aux` = "flickrfeed_cache"');
-		if($cache) {
+		global $_zp_db;
+		$cache = $_zp_db->querySingleRow('SELECT data FROM ' . prefix('plugin_storage') . ' WHERE `type` = "flickrfeed" AND `aux` = "flickrfeed_cache"');
+		if ($cache) {
 			return unserialize($cache['data']);
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Stores the content in cache
 	 * @param array $content
 	 */
 	static function saveCache($content) {
+		global $_zp_db;
 		$hascache = flickrfeed::getCache();
 		$cache = serialize($content);
-		if($hascache) {
-			$sql = 'UPDATE ' . prefix('plugin_storage') . ' SET `data`=' . db_quote($cache) . ' WHERE `type`="flickrfeed" AND `aux` = "flickrfeed_cache"';
+		if ($hascache) {
+			$sql = 'UPDATE ' . $_zp_db->prefix('plugin_storage') . ' SET `data`=' . $_zp_db->quote($cache) . ' WHERE `type`="flickrfeed" AND `aux` = "flickrfeed_cache"';
 		} else {
-			$sql = 'INSERT INTO ' . prefix('plugin_storage') . ' (`type`,`aux`,`data`) VALUES ("flickrfeed", "flickrfeed_cache",' . db_quote($cache) . ')';
+			$sql = 'INSERT INTO ' . $_zp_db->prefix('plugin_storage') . ' (`type`,`aux`,`data`) VALUES ("flickrfeed", "flickrfeed_cache",' . $_zp_db->quote($cache) . ')';
 		}
-		query($sql);
+		$_zp_db->query($sql);
 	}
-	
+
 	/**
 	 * Returns the time of the last caching
 	 * @return int
 	 */
 	static function getLastMod() {
-		$lastmod = query_single_row('SELECT data FROM ' . prefix('plugin_storage') . ' WHERE `type`="flickrfeed" AND `aux` = "flickrfeed_lastmod"');
-		if($lastmod) {
+		global $_zp_db;
+		$lastmod = $_zp_db->querySingleRow('SELECT data FROM ' . $_zp_db->prefix('plugin_storage') . ' WHERE `type`="flickrfeed" AND `aux` = "flickrfeed_lastmod"');
+		if ($lastmod) {
 			return $lastmod['data'];
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Sets the last modification time
 	 * 
 	 * @param int $lastmod Time (time()) of the last caching
 	 */
 	static function saveLastmod() { 
+		global $_zp_db;
 		$haslastmod = flickrfeed::getLastMod();
 		$lastmod = time();
 		if($haslastmod) {
-			$sql = 'UPDATE ' . prefix('plugin_storage') . ' SET `data` = ' . $lastmod . ' WHERE `type`="flickrfeed" AND `aux` = "flickrfeed_lastmod"';
+			$sql = 'UPDATE ' . $_zp_db->prefix('plugin_storage') . ' SET `data` = ' . $lastmod . ' WHERE `type`="flickrfeed" AND `aux` = "flickrfeed_lastmod"';
 		} else {
-			$sql = 'INSERT INTO ' . prefix('plugin_storage') . ' (`type`,`aux`,`data`) VALUES ("flickrfeed", "flickrfeed_lastmod",' . $lastmod . ')';
+			$sql = 'INSERT INTO ' . $_zp_db->prefix('plugin_storage') . ' (`type`,`aux`,`data`) VALUES ("flickrfeed", "flickrfeed_lastmod",' . $lastmod . ')';
 		}
-		query($sql);
+		$_zp_db->query($sql);
 	}
 
 }
