@@ -13,7 +13,7 @@
  * 
  * Note the plugin does just print an unordered list with linked thumbs and does not provide any default CSS styling. 
  * 
- * @author Malte Müller (acrylian)
+ * @author Malte Müller (acrylian), with additions by kuzzzma (since v1.2)
  * @licence GPL v3 or later
  */
 $plugin_description = gettext('A simple plugin to display the latest public images from a Flickr account');
@@ -50,7 +50,7 @@ class flickrFeedOptions {
 						'desc' => gettext('Check and save options to clear the cache on force.'))
 		);
 	}
-	
+
 	function handleOptionSave($themename, $themealbum) {
 		if (isset($_POST['flickrfeed_cacheclear'])) {
 			flickrFeed::saveCache('');
@@ -111,7 +111,7 @@ class flickrFeed {
 				<?php
 				foreach ($content as $item) {
 					//echo "<pre>"; print_r($item); echo "</pre>";
-					$thumb = flickrFeed::getItemLinkAndThumb($item);				
+					$thumb = flickrFeed::getItemLinkAndThumb($item);
 					if ($thumb) {
 						$count++;
 						echo '<li>' .$thumb . '</li>';
@@ -125,11 +125,11 @@ class flickrFeed {
 			<?php
 		}
 	}
-	
+
 	/**
 	 * Returns <a><img></a> HTML of the Image posted with medium thumbnail (max 240x240px)
 	 * 
-	 * @param array $item  The item array 
+	 * @param array $item The item array 
 	 */
 	static function getItemLinkAndThumb($item) {
 		$expl = explode('<p>', $item['description']);
@@ -141,7 +141,7 @@ class flickrFeed {
 	/**
 	 * Returns the Image Description wrapped in a paragraph.
 	 *
-	 * @param array $item  The item array 
+	 * @param array $item The item array 
 	 */
 	static function getItemDescription($item) {
 		$expl = explode('<p>', $item['description']);
@@ -151,13 +151,31 @@ class flickrFeed {
 	}
 
 	/**
+	 * Returns the URL of the Image.
+	 *
+	 * @param array $item The item array 
+	 */
+	static function getItemURL($item) {
+			return $item['link'];
+	}
+
+	/**
+	 * Returns the Title of the Image.
+	 *
+	 * @param array $item The item array 
+	 */
+	static function getItemTitle($item) {
+			return $item['title'];
+	}
+
+	/**
 	 * Returns the Image Date Published wrapped in a paragraph.
-	 * @param array $item  The item array 
+	 * @param array $item The item array 
 	 */
 	static function getItemDate($item) {
 		return zpFormattedDate(DATE_FORMAT, strtotime($item['pubDate']));
 	}
-	
+
 	/**
 	 * Gets the content from cache if available
 	 * @return array
