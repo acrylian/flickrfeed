@@ -7,9 +7,9 @@
  * 
  * ## Installation
  * 
- * Place the file 'flickrfeed.php' into your '/plugins' folder, enable it and set the plugin options.
+ * Place the file `flickrfeed.php` into your `/plugins` folder, enable it and set the plugin options.
  * 
- * Add 'flickrFeed::printFeed(4);' to your theme where you want to display the latest images.
+ * Add `flickrFeed::printFeed(4);` to your theme where you want to display the latest images.
  * 
  * Note the plugin does just print an unordered list with linked thumbs and does not provide any default CSS styling. 
  * 
@@ -50,7 +50,7 @@ class flickrFeedOptions {
 						'desc' => gettext('Check and save options to clear the cache on force.'))
 		);
 	}
-
+	
 	function handleOptionSave($themename, $themealbum) {
 		if (isset($_POST['flickrfeed_cacheclear'])) {
 			flickrFeed::saveCache('');
@@ -134,7 +134,7 @@ class flickrFeed {
 	static function getItemLinkAndThumb($item) {
 		$expl = explode('<p>', $item['description']);
 		if (array_key_exists(2, $expl)) {
-			return $expl[2];
+			return str_replace('</p>','',$expl[2]);
 		}
 	}
 
@@ -144,7 +144,7 @@ class flickrFeed {
 	 * @param array $item The item array 
 	 */
 	static function getItemDescription($item) {
-		$expl = explode('<p>', $item['description']);
+		$expl = explode("<p>", $item['description']);
 		if (array_key_exists(3, $expl)) {
 			return $expl[3];
 		}
