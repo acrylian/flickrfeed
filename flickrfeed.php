@@ -93,7 +93,7 @@ class flickrFeed {
 	}
 
 	/**
-	 * Prints a list of images from a users FlickrFeed
+	 * Prints a list of images from a users Flickr public photos RSS feed
 	 * 
 	 * Notes: 
 	 * The feed is always fetched compeltely as Flickr provides no limit here. The $number parameter is used internally only.
