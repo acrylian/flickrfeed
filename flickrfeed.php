@@ -182,7 +182,7 @@ class flickrFeed {
 	 */
 	static function getCache() {
 		global $_zp_db;
-		$cache = $_zp_db->querySingleRow('SELECT data FROM ' . prefix('plugin_storage') . ' WHERE `type` = "flickrfeed" AND `aux` = "flickrfeed_cache"');
+		$cache = $_zp_db->querySingleRow('SELECT data FROM ' . $_zp_db->prefix('plugin_storage') . ' WHERE `type` = "flickrfeed" AND `aux` = "flickrfeed_cache"');
 		if ($cache) {
 			return unserialize($cache['data']);
 		}
