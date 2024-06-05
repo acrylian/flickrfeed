@@ -13,12 +13,12 @@
  * 
  * Note the plugin does just print an unordered list with linked thumbs and does not provide any default CSS styling. 
  * 
- * @author Malte Müller (acrylian), with additions by kuzzzma (since v1.2)
+ * @author Malte Müller (acrylian), with additions by kuzzzma (since v1.1.1)
  * @licence GPL v3 or later
  */
 $plugin_description = gettext('A simple plugin to display the latest public images from a Flickr account');
 $plugin_author = 'Malte Müller (acrylian)';
-$plugin_version = '1.2';
+$plugin_version = '1.1.2';
 $plugin_category = gettext('Media');
 $option_interface = 'flickrFeedOptions';
 
@@ -182,7 +182,7 @@ class flickrFeed {
 	 */
 	static function getCache() {
 		global $_zp_db;
-		$cache = $_zp_db->querySingleRow('SELECT data FROM ' . prefix('plugin_storage') . ' WHERE `type` = "flickrfeed" AND `aux` = "flickrfeed_cache"');
+		$cache = $_zp_db->querySingleRow('SELECT data FROM ' . $_zp_db->prefix('plugin_storage') . ' WHERE `type` = "flickrfeed" AND `aux` = "flickrfeed_cache"');
 		if ($cache) {
 			return unserialize($cache['data']);
 		}
